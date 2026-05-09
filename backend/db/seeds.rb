@@ -7,3 +7,7 @@
 #   ["Action", "Comedy", "Drama", "Horror"].each do |genre_name|
 #     MovieGenre.find_or_create_by!(name: genre_name)
 #   end
+
+(0..5).each do |n|
+  BankAccount.create(account_number: SecureRandom.hex(6))
+end
