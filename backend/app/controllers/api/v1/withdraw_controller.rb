@@ -5,11 +5,11 @@ module Api
       
       def create
         @bank_account.balance -= @transaction_amount
-        @bank_account.save
-        render json: {
-          withdraw_amount: @transaction_amount,
-          message: 'Your money was withdrawn successfully!'
-        }, status: :ok
+        if @bank_account.save
+          render json: { withdraw_amount: @transaction_amount, message: 'Your money was withdrawn successfully!' }, status: :ok
+        else
+          render json: { error: 'Transaction failed' }, status: :unprocessable_entity
+        end
       end
 
       private
