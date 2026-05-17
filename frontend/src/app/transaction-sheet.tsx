@@ -1,16 +1,14 @@
+import { router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
-import {
-    TextInput,
-    Text,
-    View,
-    Pressable,
-    ActivityIndicator,
-} from "react-native";
-import { verifyAccount } from "../api/account";
-import { router } from "expo-router";
+import { View, Text, ActivityIndicator, TextInput, Pressable } from "react-native";
+import { depositMoney, withdrawMoney } from "../api/account";
+import { useBalance } from "../context/BalanceContext";
 
-export default function Index() {
-    const [accountNumber, setAccountNumber] = useState('');
+export default function TransactionSheet() {
+    const { type, accountNumber } = useLocalSearchParams<{ type: string; accountNumber: string }>();
+    const { setBalance } = useBalance();
+
+    const [amount, setAmount] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
@@ -18,9 +16,17 @@ export default function Index() {
         setLoading(true);
         setError('');
         try {
-            const data = await verifyAccount(accountNumber);
-            const balance = data.balance;
-            router.replace({ pathname: '/dashboard', params: { accountNumber, balance } });
+            if (type === 'deposit') {
+                const data = await depositMoney(accountNumber, amount);
+                setBalance(String(data.balance));
+                router.back();
+            }
+
+            if (type === 'withdraw') {
+                const data = await withdrawMoney(accountNumber, amount);
+                setBalance(String(data.balance));
+                router.back();
+            }
         } catch (e: any) {
             setError(e.message);
         } finally {
@@ -36,7 +42,7 @@ export default function Index() {
 
                     <View className="h-4" />
 
-                    <Text className="text-gray-500">Verifying account...</Text>
+                    <Text className="text-gray-500">Performing the transaction...</Text>
                 </>
             )}
 
@@ -51,17 +57,17 @@ export default function Index() {
             <View
                 className="w-full items-center justify-center bg-white py-8 px-4 border border-black"
             >
-                <Text className="self-start">ENTER ACCOUNT NUMBER:</Text>
+                <Text className="self-start">ENTER THE AMOUNT FOR {type.toUpperCase()}:</Text>
 
                 <View className="h-4" />
 
                 <TextInput
                     className="w-full bg-white p-2 border border-black"
-                    // autoFocus
+                    autoFocus
                     inputMode="numeric"
                     returnKeyType="done"
-                    value={accountNumber}
-                    onChangeText={setAccountNumber}
+                    value={amount}
+                    onChangeText={setAmount}
                 />
 
                 <View className="h-8" />

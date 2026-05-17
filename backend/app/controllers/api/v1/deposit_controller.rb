@@ -7,6 +7,7 @@ module Api
         @bank_account.balance += @transaction_amount
         @bank_account.save
         render json: {
+          balance: @bank_account.balance,
           deposit_amount: @transaction_amount,
           message: 'Your money was deposited successfully!'
         }, status: :ok
